@@ -1,6 +1,7 @@
 package by.l0gik67.jdbc.dao;
 
 
+import by.l0gik67.jdbc.dto.TicketFilter;
 import by.l0gik67.jdbc.entity.Ticket;
 import by.l0gik67.jdbc.exception.DaoException;
 import by.l0gik67.jdbc.utils.ConnectionManager;
@@ -11,28 +12,29 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class TicketDao {
     private final static TicketDao INSTANCE = new TicketDao();
     private final static String SAVE_SQL = """
                                             INSERT INTO ticket (passport_number, passenger_name, flight_id, seat_number, cost)
-                                            VALUES (?, ?, ?, ?, ?);
+                                            VALUES (?, ?, ?, ?, ?)
                                             """;
 
     private final static String DELETE_SQL = """
                                               DELETE FROM ticket
-                                              WHERE id = ?;  
+                                              WHERE id = ?
                                               """;
 
     private final static String FIND_BY_ID_SQL = """
                                                  SELECT id, passport_number, passenger_name, flight_id, seat_number, cost 
                                                  FROM ticket
-                                                 WHERE id = ?;
+                                                 WHERE id = ?
                                                  """;
 
     private final static String FIND_ALL_SQL = """
                                                SELECT id, passport_number, passenger_name, flight_id, seat_number, cost
-                                               FROM ticket;
+                                               FROM ticket
                                                """;
     private final static String UPDATE_SQL = """
                                               UPDATE ticket
@@ -88,6 +90,44 @@ public class TicketDao {
             return tickets;
         } catch (SQLException e){
                 throw new DaoException(e);
+        }
+    }
+    public List<Ticket> findAll(TicketFilter filter) {
+        List<Object> parameters = new ArrayList<>();
+        List<String> whereSql = new ArrayList<>();
+
+        if(filter.passengerName() != null){
+            parameters.add(filter.passengerName());
+            whereSql.add("passenger_name = ?");
+        }
+        if (filter.seatNumber() != null){
+            parameters.add("%" + filter.seatNumber() + "%");
+            whereSql.add("seat_number like ?");
+        }
+        parameters.add(filter.limit());
+        parameters.add(filter.offset());
+        var where = whereSql.stream().collect(Collectors.joining(
+                " AND ",
+                parameters.size() > 2 ? " WHERE " : " ",
+                " LIMIT ? OFFSET ?"
+        ));
+        String sql = FIND_ALL_SQL + where;
+        try (var connection = ConnectionManager.get();
+             var statement = connection.prepareStatement(sql)) {
+
+            for (int i = 0; i < parameters.size(); i++) {
+                statement.setObject(i + 1, parameters.get(i));
+            }
+            var result = statement.executeQuery();
+
+            List<Ticket> tickets = new ArrayList<>();
+            while (result.next()) {
+                var ticket = buildTicket(result);
+                tickets.add(ticket);
+            }
+            return tickets;
+        } catch (SQLException e){
+            throw new DaoException(e);
         }
     }
 

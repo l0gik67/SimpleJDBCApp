@@ -1,6 +1,7 @@
 package by.l0gik67.jdbc;
 
 import by.l0gik67.jdbc.dao.TicketDao;
+import by.l0gik67.jdbc.dto.TicketFilter;
 import by.l0gik67.jdbc.entity.Ticket;
 import by.l0gik67.jdbc.utils.ConnectionManager;
 import by.l0gik67.jdbc.utils.PropertiesUtil;
@@ -16,7 +17,8 @@ import java.util.List;
 public class JDBCRunner {
     public static void main(String[] args) throws SQLException {
         var ticketDao = TicketDao.getInstance();
-        System.out.println(ticketDao.findById(14L));
+        var filter = new TicketFilter("Иванов Иван Иванович", "1A", 5, 0);
+        System.out.println(ticketDao.findAll(filter));
     }
 
 
