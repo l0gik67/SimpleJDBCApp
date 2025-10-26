@@ -30,7 +30,7 @@ public final class ConnectionManager {
             var proxyConnection = (Connection) Proxy.newProxyInstance(ConnectionManager.class.getClassLoader(),
                     new Class[]{Connection.class},
                     (proxy, method, args) -> method.getName().equals("close") ?
-                            pool.add((Connection) proxy) : method.invoke(args));
+                            pool.add((Connection) proxy) : method.invoke(connection, args));
             pool.add(proxyConnection);
         }
     }

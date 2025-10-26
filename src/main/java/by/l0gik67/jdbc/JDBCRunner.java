@@ -1,8 +1,11 @@
 package by.l0gik67.jdbc;
 
+import by.l0gik67.jdbc.dao.TicketDao;
+import by.l0gik67.jdbc.entity.Ticket;
 import by.l0gik67.jdbc.utils.ConnectionManager;
 import by.l0gik67.jdbc.utils.PropertiesUtil;
 
+import java.math.BigDecimal;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -12,19 +15,8 @@ import java.util.List;
 
 public class JDBCRunner {
     public static void main(String[] args) throws SQLException {
-
-        String sql = """
-                select * from ticket;
-                """;
-        try (var connection = ConnectionManager.get();
-        var statement = connection.createStatement()) {
-            var result = statement.executeQuery(sql);
-            while (result.next()) {
-                System.out.println(result.getString("passenger_name"));
-                System.out.println(result.getLong("flight_id"));
-                System.out.println(result.getBigDecimal("cost"));
-            }
-        }
+        var ticketDao = TicketDao.getInstance();
+        System.out.println(ticketDao.findById(14L));
     }
 
 
