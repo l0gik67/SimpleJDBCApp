@@ -120,7 +120,7 @@ public class FlightDao implements Dao<Long, Flight>{
             statement.setTimestamp(2, Timestamp.valueOf(flight.getDepartureDate()));
             statement.setInt(3, flight.getDepartureAirportCode());
             statement.setInt(4, flight.getAircraftId());
-            statement.setString(5, flight.getStatus().name());
+            statement.setString(5, flight.getStatus().name().toLowerCase());
 
             statement.execute();
             var keys = statement.getGeneratedKeys();
@@ -139,7 +139,7 @@ public class FlightDao implements Dao<Long, Flight>{
                 .flightNumber(result.getInt("flight_number"))
                 .departureDate(result.getTimestamp("departure_date").toLocalDateTime())
                 .departureAirportCode(result.getInt("departure_airport_code"))
-                .status(FlightStatus.valueOf(result.getString("status")))
+                .status(FlightStatus.valueOf(result.getString("status").toUpperCase()))
                 .build();
         return flight;
     }

@@ -1,7 +1,10 @@
 package by.l0gik67.jdbc;
 
+import by.l0gik67.jdbc.dao.FlightDao;
 import by.l0gik67.jdbc.dao.TicketDao;
 import by.l0gik67.jdbc.dto.TicketFilter;
+import by.l0gik67.jdbc.entity.Flight;
+import by.l0gik67.jdbc.entity.FlightStatus;
 import by.l0gik67.jdbc.entity.Ticket;
 import by.l0gik67.jdbc.utils.ConnectionManager;
 import by.l0gik67.jdbc.utils.PropertiesUtil;
@@ -18,7 +21,17 @@ public class JDBCRunner {
     public static void main(String[] args) throws SQLException {
         var ticketDao = TicketDao.getInstance();
         var filter = new TicketFilter("Иванов Иван Иванович", "1A", 5, 0);
+        var flightDao = FlightDao.getInstance();
         System.out.println(ticketDao.findAll(filter));
+
+        var flight = Flight.builder()
+                .flightNumber(1001)
+                .departureDate(LocalDateTime.of(2020, 1, 1, 0, 0))
+                .departureAirportCode(1)
+                .aircraftId(0)
+                .status(FlightStatus.BOARDING)
+                .build();
+        flightDao.save(flight);
     }
 
 
