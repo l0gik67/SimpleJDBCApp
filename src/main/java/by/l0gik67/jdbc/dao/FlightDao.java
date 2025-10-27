@@ -13,6 +13,12 @@ import java.util.Optional;
 
 public class FlightDao implements Dao<Long, Flight>{
 
+    private static final FlightDao INSTANCE = new FlightDao();
+    public static FlightDao getInstance() {
+        return INSTANCE;
+    }
+    private FlightDao() {}
+
     private final static String UPDATE_SQL = """
                                              UPDATE flight 
                                              SET flight_number = ?,
