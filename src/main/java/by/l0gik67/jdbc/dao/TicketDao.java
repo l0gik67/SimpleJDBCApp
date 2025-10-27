@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class TicketDao {
+public class TicketDao implements Dao<Long, Ticket> {
     private final static TicketDao INSTANCE = new TicketDao();
     private final static String SAVE_SQL = """
                                             INSERT INTO ticket (passport_number, passenger_name, flight_id, seat_number, cost)
@@ -147,7 +147,7 @@ public class TicketDao {
         }
     }
 
-    private static boolean update(Ticket ticket) {
+    public boolean update(Ticket ticket) {
         try(var connection  =ConnectionManager.get();
         var statement = connection.prepareStatement(UPDATE_SQL)) {
             statement.setInt(1, ticket.getPassportNumber());
