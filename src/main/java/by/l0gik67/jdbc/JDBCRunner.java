@@ -22,16 +22,13 @@ public class JDBCRunner {
         var ticketDao = TicketDao.getInstance();
         var filter = new TicketFilter("Иванов Иван Иванович", "1A", 5, 0);
         var flightDao = FlightDao.getInstance();
-        System.out.println(ticketDao.findAll(filter));
 
-        var flight = Flight.builder()
-                .flightNumber(1001)
-                .departureDate(LocalDateTime.of(2020, 1, 1, 0, 0))
-                .departureAirportCode(1)
-                .aircraftId(0)
-                .status(FlightStatus.BOARDING)
-                .build();
-        flightDao.save(flight);
+        List<Ticket> tickets = ticketDao.findAll();
+        for (Ticket ticket : tickets) {
+            System.out.println(ticket);
+            System.out.println(ticket.getFlight());
+            System.out.println("--------------");
+        }
     }
 
 

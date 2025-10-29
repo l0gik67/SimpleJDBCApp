@@ -15,7 +15,7 @@ public class Ticket {
     private Long id;
     private int passportNumber;
     private String passengerName;
-    private Long flightId;
+    private Flight flight;
     private String seatNumber;
     private BigDecimal cost;
 
@@ -23,11 +23,11 @@ public class Ticket {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Ticket ticket = (Ticket) o;
-        return Objects.equals(id, ticket.id) && Objects.equals(passportNumber, ticket.passportNumber) && Objects.equals(passengerName, ticket.passengerName) && Objects.equals(flightId, ticket.flightId) && Objects.equals(seatNumber, ticket.seatNumber) && Objects.equals(cost, ticket.cost);
+        return Objects.equals(id, ticket.id) && Objects.equals(passportNumber, ticket.passportNumber) && Objects.equals(passengerName, ticket.passengerName) && Objects.equals(flight, ticket.flight) && Objects.equals(seatNumber, ticket.seatNumber) && Objects.equals(cost, ticket.cost);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, passportNumber, passengerName, flightId, seatNumber, cost);
+        return Objects.hash(id, passportNumber, passengerName, flight, seatNumber, cost);
     }
 }

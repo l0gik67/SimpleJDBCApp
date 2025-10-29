@@ -2,6 +2,8 @@ package by.l0gik67.jdbc.dao;
 
 
 import by.l0gik67.jdbc.dto.TicketFilter;
+import by.l0gik67.jdbc.entity.Flight;
+import by.l0gik67.jdbc.entity.FlightStatus;
 import by.l0gik67.jdbc.entity.Ticket;
 import by.l0gik67.jdbc.exception.DaoException;
 import by.l0gik67.jdbc.utils.ConnectionManager;
@@ -9,6 +11,7 @@ import by.l0gik67.jdbc.utils.ConnectionManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,16 +29,27 @@ public class TicketDao implements Dao<Long, Ticket> {
                                               WHERE id = ?
                                               """;
 
-    private final static String FIND_BY_ID_SQL = """
-                                                 SELECT id, passport_number, passenger_name, flight_id, seat_number, cost 
-                                                 FROM ticket
+
+    private final static String FIND_ALL_SQL = """
+                                               SELECT ticket.id,
+                                                      passport_number,
+                                                      passenger_name,
+                                                      flight_id,
+                                                      seat_number,
+                                                      cost,
+                                                      flight.id,
+                                                      flight_number,
+                                                      departure_date,
+                                                      departure_airport_code,
+                                                      aircraft_id,
+                                                      status
+                                               FROM ticket JOIN flight ON ticket.flight_id = flight.id
+                                               """;
+
+    private final static String FIND_BY_ID_SQL = FIND_ALL_SQL + """
                                                  WHERE id = ?
                                                  """;
 
-    private final static String FIND_ALL_SQL = """
-                                               SELECT id, passport_number, passenger_name, flight_id, seat_number, cost
-                                               FROM ticket
-                                               """;
     private final static String UPDATE_SQL = """
                                               UPDATE ticket
                                               SET passport_number = ?,
@@ -51,7 +65,7 @@ public class TicketDao implements Dao<Long, Ticket> {
         var statement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS);) {
             statement.setInt(1, ticket.getPassportNumber());
             statement.setString(2, ticket.getPassengerName());
-            statement.setLong(3, ticket.getFlightId());
+            statement.setLong(3, ticket.getFlight().getId());
             statement.setString(4, ticket.getSeatNumber());
             statement.setBigDecimal(5, ticket.getCost());
 
@@ -152,7 +166,7 @@ public class TicketDao implements Dao<Long, Ticket> {
         var statement = connection.prepareStatement(UPDATE_SQL)) {
             statement.setInt(1, ticket.getPassportNumber());
             statement.setString(2, ticket.getPassengerName());
-            statement.setLong(3, ticket.getFlightId());
+            statement.setLong(3, ticket.getFlight().getId());
             statement.setString(4, ticket.getSeatNumber());
             statement.setBigDecimal(5, ticket.getCost());
             statement.setLong(6, ticket.getId());
@@ -164,14 +178,25 @@ public class TicketDao implements Dao<Long, Ticket> {
     }
 
     private static Ticket buildTicket(ResultSet result) throws SQLException {
-        return Ticket.builder()
+        var flight = Flight.builder()
+                .id(result.getLong("flight_id"))
+                .flightNumber(result.getInt("flight_number"))
+                .departureDate(result.getTimestamp("departure_date").toLocalDateTime())
+                .departureAirportCode(result.getInt("departure_airport_code"))
+                .aircraftId(result.getInt("aircraft_id"))
+                .status(FlightStatus.valueOf(result.getString("status").toUpperCase()))
+                .build();
+
+        var ticket = Ticket.builder()
                 .id(result.getLong("id"))
                 .passportNumber(result.getInt("passport_number"))
                 .passengerName(result.getString("passenger_name"))
-                .flightId(result.getLong("flight_id"))
+                .flight(flight)
                 .seatNumber(result.getString("seat_number"))
                 .cost(result.getBigDecimal("cost"))
                 .build();
+
+        return ticket;
     }
 
 
